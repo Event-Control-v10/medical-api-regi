@@ -85,103 +85,54 @@
         </div>
     </div>
 
-    <script>
+  <script>
         const API = "https://medical-api-2td0.onrender.com"; 
         let audioB; let mediaR; let chunks = [];
 
         function vib(t){ if(navigator.vibrate) navigator.vibrate(t); }
-        function toggleComfort(){ document.body.classList.toggle('comfort-mode'); vib(50); }
 
         function showTab(t){
             ['excel', 'scan', 'hist'].forEach(k => {
                 document.getElementById('s-'+k).classList.add('hidden');
-                document.getElementById('t-'+k).className = "pb-3 text-slate-500 transition-all";
+                document.getElementById('t-'+k).className = "pb-3 text-slate-500";
             });
             document.getElementById('s-'+t).classList.remove('hidden');
-            document.getElementById('t-'+t).className = "pb-3 tab-active transition-all";
+            document.getElementById('t-'+t).className = "pb-3 tab-active";
             if(t === 'hist') loadH();
             vib(20);
         }
 
-        document.getElementById('fExcel').onchange = e => { if(e.target.files[0]) { document.getElementById('nExcel').innerText = e.target.files[0].name; vib(60); }};
-
-        document.getElementById('bVoice').onclick = async () => {
-            const vTxt = document.getElementById('vTxt');
-            const micIcon = document.getElementById('micIcon');
-            const bVoice = document.getElementById('bVoice');
-            if(!mediaR || mediaR.state === "inactive"){
-                try {
-                    const s = await navigator.mediaDevices.getUserMedia({audio:true});
-                    mediaR = new MediaRecorder(s); mediaR.start(); chunks = [];
-                    vTxt.innerText = "Je t'écoute Réginalde...";
-                    bVoice.classList.add('recording-pulse');
-                    micIcon.className = "fas fa-stop text-rose-500";
-                    vib(50);
-                    mediaR.ondataavailable = e => chunks.push(e.data);
-                    mediaR.onstop = () => { 
-                        audioB = new Blob(chunks, {type:'audio/wav'}); 
-                        vTxt.innerText = "Voix capturée ! ✅"; 
-                        bVoice.classList.remove('recording-pulse');
-                        micIcon.className = "fas fa-check text-emerald-400";
-                        vib([50,30,50]); 
-                    };
-                } catch(err) { alert("Active le micro ! 🥥"); }
-            } else { mediaR.stop(); }
-        };
-
-        document.getElementById('bSubmit').onclick = async () => {
-            const f = document.getElementById('fExcel').files[0];
-            if(!f) return alert("Hé Tête de Coco, charge un fichier ! 🥥");
-            document.getElementById('loading').classList.remove('hidden');
-            const fd = new FormData(); fd.append('file', f);
-            fd.append('instruction', document.getElementById('tExcel').value);
-            if(audioB) fd.append('audio', audioB, 'v.wav');
-            try {
-                const r = await fetch(API+'/process', {method:'POST', body:fd});
-                if(r.ok){
-                    const b = await r.blob(); const u = URL.createObjectURL(b);
-                    const a = document.createElement('a'); a.href=u; a.download="Reginalde_Rapport.xlsx"; a.click();
-                    confetti({particleCount:150, spread:70, origin:{y:0.6}, colors:['#10b981','#ffffff']});
-                    vib([100,50,100]);
-                } else { alert("L'IA n'a pas compris. Sois plus précise."); }
-            } catch(e) { alert("Le serveur se réveille, réessaie dans 15 secondes."); }
-            document.getElementById('loading').classList.add('hidden');
-        };
-
+        // SCANNER LOGIQUE
         document.getElementById('fScan').onchange = async e => {
-            const f = e.target.files[0]; if(!f) return;
+            const f = e.target.files[0]; 
+            if(!f) return;
+
             document.getElementById('loading').classList.remove('hidden');
-            document.getElementById('lTxt').innerText = "DÉCHIFFRAGE DU DOC...";
-            const fd = new FormData(); fd.append('image', f);
+            document.getElementById('lTxt').innerText = "L'IA ANALYSE LA PHOTO... 🥥";
+            
+            const fd = new FormData(); 
+            fd.append('image', f);
+
             try {
-                const r = await fetch(API+'/ocr', {method:'POST', body:fd});
+                const r = await fetch(API+'/ocr', { method:'POST', body:fd });
                 const d = await r.json();
-                if(d.image && d.text) {
+
+                if (r.ok && d.text) {
                     document.getElementById('ocrBox').classList.remove('hidden');
                     document.getElementById('resImg').src = d.image;
                     document.getElementById('resTxt').innerText = d.text;
                     vib(100);
+                } else {
+                    alert("Erreur IA : " + (d.detail || "Impossible de lire l'image."));
                 }
-            } catch(e) { alert("Erreur d'analyse."); }
+            } catch(err) {
+                alert("Erreur de connexion : Vérifie que Render est bien 'Live'.");
+            }
             document.getElementById('loading').classList.add('hidden');
         };
 
-        document.getElementById('bCopy').onclick = () => { navigator.clipboard.writeText(document.getElementById('resTxt').innerText); alert("Copié ! ✅"); vib(40); };
-
-        async function loadH(){
-            const hList = document.getElementById('hList');
-            try {
-                const r = await fetch(API+'/history'); const d = await r.json();
-                if(d.files && d.files.length > 0) {
-                    hList.innerHTML = d.files.map(f => `
-                        <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5 shadow-sm mb-2">
-                            <span class="text-[10px] truncate w-32 font-mono">${f}</span>
-                            <a href="${API}/download/${f}" class="text-emerald-400 font-bold text-xs bg-emerald-500/10 px-4 py-1 rounded-lg">📥 Ouvrir</a>
-                        </div>
-                    `).join('');
-                } else { hList.innerHTML = "Aucun rapport trouvé."; }
-            } catch(e) { hList.innerHTML = "Erreur historique."; }
-        }
+        // Reste des fonctions (Submit Excel, Copy, History) identiques à la version précédente
+        // ... (Garde le code du message précédent pour bSubmit, bCopy et loadH)
     </script>
 </body>
 </html>
