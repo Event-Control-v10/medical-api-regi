@@ -81,94 +81,85 @@
         </div>
     </div>
 
-    <script>
-        const API = "https://medical-api-2td0.onrender.com"; 
-        let audioB; let mediaR; let chunks = [];
 
-        function vib(t){ if(navigator.vibrate) navigator.vibrate(t); }
-        function toggleComfort(){ document.body.classList.toggle('comfort-mode'); vib(40); }
+<!-- ... (Gardez vos styles CSS du message précédent) ... -->
 
-        function showTab(t){
-            ['excel', 'scan', 'hist'].forEach(k => {
-                document.getElementById('s-'+k).classList.add('hidden');
-                document.getElementById('t-'+k).className = "pb-3 text-slate-500 font-medium";
-            });
-            document.getElementById('s-'+t).classList.remove('hidden');
-            document.getElementById('t-'+t).className = "pb-3 tab-active";
-            if(t === 'hist') loadH();
-            vib(20);
+<script>
+    const API = "https://medical-api-2td0.onrender.com"; 
+    let audioB; let mediaR; let chunks = [];
+
+    // --- LOGIQUE SCANNER CORRIGÉE ---
+    document.getElementById('fScan').onchange = async e => {
+        const f = e.target.files[0]; 
+        if(!f) return;
+
+        const loading = document.getElementById('loading');
+        const ocrBox = document.getElementById('ocrBox');
+        const resImg = document.getElementById('resImg');
+        const resTxt = document.getElementById('resTxt');
+
+        loading.classList.remove('hidden');
+        document.getElementById('lTxt').innerText = "DÉCHIFFRAGE BIONIQUE...";
+        
+        const fd = new FormData(); 
+        fd.append('image', f);
+
+        try {
+            const r = await fetch(API+'/ocr', {method:'POST', body:fd});
+            const d = await r.json();
+
+            if (d.image && d.text) {
+                ocrBox.classList.remove('hidden');
+                resImg.src = d.image;
+                resTxt.innerText = d.text;
+                if(navigator.vibrate) navigator.vibrate(100);
+            } else {
+                alert("L'IA n'a pas pu lire l'image. Essaie avec plus de lumière.");
+            }
+        } catch(err) {
+            alert("Erreur de connexion au serveur Render.");
         }
+        loading.classList.add('hidden');
+    };
 
-        document.getElementById('fExcel').onchange = e => { document.getElementById('nExcel').innerText = e.target.files[0].name; vib(60); };
+    // --- LOGIQUE EXCEL CORRIGÉE ---
+    document.getElementById('bSubmit').onclick = async () => {
+        const f = document.getElementById('fExcel').files[0];
+        const instruction = document.getElementById('tExcel').value;
+        if(!f) return alert("Charge ton fichier Excel, Tête de Coco ! 🥥");
+        
+        document.getElementById('loading').classList.remove('hidden');
+        const fd = new FormData(); 
+        fd.append('file', f);
+        fd.append('instruction', instruction);
+        if(audioB) fd.append('audio', audioB, 'v.wav');
 
-        document.getElementById('bVoice').onclick = async () => {
-            if(!mediaR || mediaR.state === "inactive"){
-                const s = await navigator.mediaDevices.getUserMedia({audio:true});
-                mediaR = new MediaRecorder(s); mediaR.start();
-                document.getElementById('vTxt').innerText = "Je t'écoute Réginalde...";
-                vib(50);
-                mediaR.ondataavailable = e => chunks.push(e.data);
-                mediaR.onstop = () => { 
-                    audioB = new Blob(chunks, {type:'audio/wav'}); 
-                    chunks=[]; 
-                    document.getElementById('vTxt').innerText = "Voix capturée ! ✅"; 
-                    vib([50,30,50]); 
-                };
-            } else { mediaR.stop(); }
-        };
-
-        document.getElementById('bSubmit').onclick = async () => {
-            const f = document.getElementById('fExcel').files[0];
-            if(!f) return alert("Hé Tête de Coco, le fichier ! 🥥");
-            document.getElementById('loading').classList.remove('hidden');
-            const fd = new FormData(); 
-            fd.append('file', f);
-            fd.append('instruction', document.getElementById('tExcel').value);
-            if(audioB) fd.append('audio', audioB, 'v.wav');
-            try {
-                const r = await fetch(API+'/process', {method:'POST', body:fd});
-                if(r.ok){
-                    const b = await r.blob(); const u = URL.createObjectURL(b);
-                    const a = document.createElement('a'); a.href=u; a.download="Reginalde_OK.xlsx"; a.click();
-                    confetti({particleCount:150, spread:70, origin:{y:0.6}, colors:['#10b981','#ffffff']});
-                    vib([100,50,100]);
-                } else { alert("Erreur lors de la modification. Vérifie ton fichier."); }
-            } catch(e) { alert("Erreur serveur."); }
-            document.getElementById('loading').classList.add('hidden');
-        };
-
-        document.getElementById('fScan').onchange = async e => {
-            const f = e.target.files[0]; if(!f) return;
-            document.getElementById('loading').classList.remove('hidden');
-            document.getElementById('lTxt').innerText = "ANALYSE BIONIQUE...";
-            const fd = new FormData(); fd.append('image', f);
-            try {
-                const r = await fetch(API+'/ocr', {method:'POST', body:fd});
-                const d = await r.json();
-                document.getElementById('ocrBox').classList.remove('hidden');
-                document.getElementById('resImg').src = d.image;
-                document.getElementById('resTxt').innerText = d.text;
-            } catch(e) { alert("Erreur scan."); }
-            document.getElementById('loading').classList.add('hidden');
-            vib(100);
-        };
-
-        document.getElementById('bCopy').onclick = () => {
-            navigator.clipboard.writeText(document.getElementById('resTxt').innerText);
-            vib(40); alert("Copié ! ✅");
-        };
-
-        async function loadH(){
-            try {
-                const r = await fetch(API+'/history'); const d = await r.json();
-                document.getElementById('hList').innerHTML = d.files.map(f => `
-                    <div class="flex justify-between items-center bg-slate-800/50 p-4 rounded-2xl border border-white/5">
-                        <span class="text-[10px] truncate w-32 font-mono">${f}</span>
-                        <a href="${API}/download/${f}" class="text-emerald-400 font-bold text-xs">📥 Ouvrir</a>
-                    </div>
-                `).join('');
-            } catch(e) { document.getElementById('hList').innerText = "Historique vide."; }
+        try {
+            const r = await fetch(API+'/process', {method:'POST', body:fd});
+            if(r.ok){
+                const b = await r.blob(); 
+                const u = URL.createObjectURL(b);
+                const a = document.createElement('a'); 
+                a.href=u; 
+                a.download="Réginalde_MAJ.xlsx"; 
+                a.click();
+                confetti({particleCount:150, spread:70, origin:{y:0.6}});
+            } else {
+                alert("L'IA n'a pas compris l'instruction ou le fichier est mal formé.");
+            }
+        } catch(e) {
+            alert("Le serveur Render est peut-être endormi. Réessaie dans 30 secondes.");
         }
-    </script>
+        document.getElementById('loading').classList.add('hidden');
+    };
+
+    // ... (Reste du code identique) ...
+</script>
+
+
+    
+
+
+    
 </body>
 </html>
