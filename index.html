@@ -9,31 +9,32 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0f172a; transition: 0.3s; color: #f1f5f9; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0f172a; transition: 0.3s; color: #f1f5f9; overscroll-behavior: none; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .tab-active { border-bottom: 4px solid #10b981; color: #10b981; }
         .comfort-mode { font-size: 1.3rem; }
         .comfort-mode h1 { font-size: 2.5rem; }
+        .comfort-mode textarea, .comfort-mode input { font-size: 1.2rem; }
         .shimmer { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
         @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
         .recording-pulse { animation: pulse-red 1.5s infinite; }
-        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } }
     </style>
 </head>
-<body id="mainBody" class="min-h-screen p-4 pb-10">
+<body id="mainBody" class="min-h-screen p-4 pb-12">
 
     <div class="max-w-xl mx-auto flex justify-between items-center py-6">
         <div>
             <h1 class="text-2xl font-black text-white">Réginalde Hub 🥥</h1>
-            <p class="text-slate-400 text-xs">Fais briller tes rapports, Tête de Coco !</p>
+            <p class="text-emerald-400 text-xs font-bold">L'assistant de Tête de Coco</p>
         </div>
-        <button onclick="toggleComfort()" class="bg-amber-500/20 text-amber-400 px-4 py-2 rounded-full text-xs font-bold border border-amber-500/30 active:scale-95 transition-all">🕶️ Mode Yeux</button>
+        <button onclick="toggleComfort()" class="bg-amber-500/20 text-amber-400 px-4 py-2 rounded-full text-xs font-bold border border-amber-500/30 active:scale-95">🕶️ Mode Yeux</button>
     </div>
 
     <div class="max-w-xl mx-auto flex justify-around mb-8 border-b border-slate-800 text-sm font-bold tracking-widest">
-        <button onclick="showTab('excel')" id="t-excel" class="pb-3 tab-active">EXCEL</button>
-        <button onclick="showTab('scan')" id="t-scan" class="pb-3 text-slate-500">SCANNER</button>
-        <button onclick="showTab('hist')" id="t-hist" class="pb-3 text-slate-500">DOSSIERS</button>
+        <button onclick="showTab('excel')" id="t-excel" class="pb-3 tab-active transition-all">EXCEL</button>
+        <button onclick="showTab('scan')" id="t-scan" class="pb-3 text-slate-500 transition-all">SCANNER</button>
+        <button onclick="showTab('hist')" id="t-hist" class="pb-3 text-slate-500 transition-all">DOSSIERS</button>
     </div>
 
     <div class="max-w-xl mx-auto space-y-6">
@@ -42,11 +43,11 @@
         <div id="s-excel" class="space-y-4">
             <div class="glass rounded-[2.5rem] p-6 text-center">
                 <input type="file" id="fExcel" class="hidden" accept=".xlsx">
-                <div onclick="document.getElementById('fExcel').click()" class="border-2 border-dashed border-slate-700 rounded-3xl p-8 hover:border-emerald-500/5 transition-all cursor-pointer">
+                <div onclick="document.getElementById('fExcel').click()" class="border-2 border-dashed border-slate-700 rounded-3xl p-8 hover:bg-emerald-500/5 transition-all cursor-pointer">
                     <i class="fas fa-file-excel text-3xl text-emerald-400 mb-2"></i>
-                    <p id="nExcel" class="text-slate-400 text-sm">Dépose ton rapport ici, Réginalde</p>
+                    <p id="nExcel" class="text-slate-400 text-sm">Dépose ton rapport ici</p>
                 </div>
-                <textarea id="tExcel" class="w-full bg-slate-900/50 mt-4 rounded-2xl p-4 text-white border border-slate-700 outline-none" rows="3" placeholder="Dis-moi quoi modifier (ex: ajoute 1 visite à...)"></textarea>
+                <textarea id="tExcel" class="w-full bg-slate-900/50 mt-4 rounded-2xl p-4 text-white border border-slate-700 outline-none" rows="3" placeholder="Ex: Ajoute une visite au Dr SESSOU..."></textarea>
                 <button id="bVoice" class="w-full mt-4 bg-slate-800 py-4 rounded-2xl font-bold flex justify-center gap-3 transition-all active:bg-slate-900">
                     <i class="fas fa-microphone text-rose-500" id="micIcon"></i> <span id="vTxt">Parle-moi, Tête de Coco</span>
                 </button>
@@ -57,13 +58,13 @@
         <!-- SCANNER -->
         <div id="s-scan" class="hidden space-y-4 text-center">
             <div class="glass rounded-[2.5rem] p-6">
-                <p class="text-sm text-slate-400 mb-6 font-medium">L'IA déchiffre les documents flous pour tes yeux 🥥</p>
+                <p class="text-sm text-slate-400 mb-6">Scanner Bionique pour tes yeux 🥥</p>
                 <input type="file" id="fScan" class="hidden" accept="image/*" capture="environment">
                 <button onclick="document.getElementById('fScan').click()" class="w-full bg-blue-600 py-5 rounded-2xl font-black text-lg active:scale-95 transition-all">📸 PRENDRE UNE PHOTO</button>
                 <div id="ocrBox" class="hidden mt-6 space-y-4">
-                    <div class="rounded-xl overflow-hidden border border-slate-700 shadow-inner"><img id="resImg" class="w-full h-auto cursor-zoom-in" onclick="window.open(this.src)"></div>
+                    <div class="rounded-xl overflow-hidden border border-slate-700"><img id="resImg" class="w-full h-auto cursor-zoom-in" onclick="window.open(this.src)"></div>
                     <div id="resTxt" class="bg-slate-900/90 p-5 rounded-xl text-left text-lg leading-relaxed border border-emerald-500/30 whitespace-pre-wrap"></div>
-                    <button id="bCopy" class="w-full bg-slate-700 py-3 rounded-xl font-bold active:scale-95 transition-all">📋 COPIER LE TEXTE</button>
+                    <button id="bCopy" class="w-full bg-slate-700 py-3 rounded-xl font-bold active:scale-95">📋 COPIER</button>
                 </div>
             </div>
         </div>
@@ -77,62 +78,104 @@
         </div>
     </div>
 
-    <!-- Loading -->
+    <!-- Loader -->
     <div id="loading" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50 text-center">
         <div>
-            <div class="shimmer w-20 h-20 rounded-full bg-emerald-500/10 mb-6 mx-auto flex items-center justify-center"><span class="text-3xl animate-bounce">🥥</span></div>
-            <p id="lTxt" class="text-emerald-400 font-bold uppercase text-xs tracking-widest">L'IA travaille pour toi...</p>
+            <div class="shimmer w-20 h-20 rounded-full bg-emerald-500/10 mb-6 mx-auto flex items-center justify-center"><span class="text-4xl animate-bounce">🥥</span></div>
+            <p id="lTxt" class="text-emerald-400 font-bold tracking-widest uppercase text-xs">Traitement en cours...</p>
         </div>
     </div>
 
-  <script>
+    <script>
         const API = "https://medical-api-2td0.onrender.com"; 
         let audioB; let mediaR; let chunks = [];
 
         function vib(t){ if(navigator.vibrate) navigator.vibrate(t); }
+        function toggleComfort(){ document.body.classList.toggle('comfort-mode'); vib(50); }
 
         function showTab(t){
             ['excel', 'scan', 'hist'].forEach(k => {
                 document.getElementById('s-'+k).classList.add('hidden');
-                document.getElementById('t-'+k).className = "pb-3 text-slate-500";
+                document.getElementById('t-'+k).className = "pb-3 text-slate-500 transition-all";
             });
             document.getElementById('s-'+t).classList.remove('hidden');
-            document.getElementById('t-'+t).className = "pb-3 tab-active";
+            document.getElementById('t-'+t).className = "pb-3 tab-active transition-all";
             if(t === 'hist') loadH();
             vib(20);
         }
 
-        // SCANNER LOGIQUE
-        document.getElementById('fScan').onchange = async e => {
-            const f = e.target.files[0]; 
-            if(!f) return;
+        document.getElementById('fExcel').onchange = e => { if(e.target.files[0]) { document.getElementById('nExcel').innerText = e.target.files[0].name; vib(60); }};
 
+        document.getElementById('bVoice').onclick = async () => {
+            const vTxt = document.getElementById('vTxt');
+            const micIcon = document.getElementById('micIcon');
+            const bVoice = document.getElementById('bVoice');
+            if(!mediaR || mediaR.state === "inactive"){
+                try {
+                    const s = await navigator.mediaDevices.getUserMedia({audio:true});
+                    mediaR = new MediaRecorder(s); mediaR.start(); chunks=[];
+                    vTxt.innerText = "Je t'écoute...";
+                    bVoice.classList.add('recording-pulse');
+                    micIcon.className = "fas fa-stop text-rose-500";
+                    vib(50);
+                    mediaR.ondataavailable = e => chunks.push(e.data);
+                    mediaR.onstop = () => { audioB = new Blob(chunks, {type:'audio/wav'}); vTxt.innerText = "C'est bon ! ✅"; bVoice.classList.remove('recording-pulse'); micIcon.className = "fas fa-check text-emerald-400"; vib([50,30,50]); };
+                } catch(e) { alert("Active ton micro !"); }
+            } else { mediaR.stop(); }
+        };
+
+        document.getElementById('bSubmit').onclick = async () => {
+            const f = document.getElementById('fExcel').files[0];
+            const instruction = document.getElementById('tExcel').value;
+            if(!f) return alert("Charge ton fichier Excel !");
             document.getElementById('loading').classList.remove('hidden');
-            document.getElementById('lTxt').innerText = "L'IA ANALYSE LA PHOTO... 🥥";
-            
-            const fd = new FormData(); 
-            fd.append('image', f);
-
+            document.getElementById('lTxt').innerText = "L'IA BOSSE SUR TON EXCEL...";
+            const fd = new FormData(); fd.append('file', f); fd.append('instruction', instruction);
+            if(audioB) fd.append('audio', audioB, 'v.wav');
             try {
-                const r = await fetch(API+'/ocr', { method:'POST', body:fd });
-                const d = await r.json();
+                const r = await fetch(API+'/process', {method:'POST', body:fd});
+                if(r.ok){
+                    const b = await r.blob(); const u = URL.createObjectURL(b);
+                    const a = document.createElement('a'); a.href=u; a.download="Rapport_MAJ.xlsx"; a.click();
+                    confetti({particleCount:150, spread:70, origin:{y:0.6}}); vib([100,50,100]);
+                } else { alert("Erreur IA. Vérifie ta demande."); }
+            } catch(e) { alert("Serveur en pause. Réessaie dans 15s."); }
+            document.getElementById('loading').classList.add('hidden');
+        };
 
-                if (r.ok && d.text) {
+        document.getElementById('fScan').onchange = async e => {
+            const f = e.target.files[0]; if(!f) return;
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('lTxt').innerText = "ANALYSE BIONIQUE...";
+            const fd = new FormData(); fd.append('image', f);
+            try {
+                const r = await fetch(API+'/ocr', {method:'POST', body:fd});
+                const d = await r.json();
+                if(d.image && d.text) {
                     document.getElementById('ocrBox').classList.remove('hidden');
                     document.getElementById('resImg').src = d.image;
                     document.getElementById('resTxt').innerText = d.text;
                     vib(100);
-                } else {
-                    alert("Erreur IA : " + (d.detail || "Impossible de lire l'image."));
                 }
-            } catch(err) {
-                alert("Erreur de connexion : Vérifie que Render est bien 'Live'.");
-            }
+            } catch(e) { alert("Erreur d'analyse."); }
             document.getElementById('loading').classList.add('hidden');
         };
 
-        // Reste des fonctions (Submit Excel, Copy, History) identiques à la version précédente
-        // ... (Garde le code du message précédent pour bSubmit, bCopy et loadH)
+        document.getElementById('bCopy').onclick = () => { navigator.clipboard.writeText(document.getElementById('resTxt').innerText); alert("Copié ! ✅"); vib(40); };
+
+        async function loadH(){
+            const hList = document.getElementById('hList');
+            try {
+                const r = await fetch(API+'/history'); const d = await r.json();
+                if(d.files.length) {
+                    hList.innerHTML = d.files.map(f => `
+                        <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl mb-2 border border-white/5">
+                            <span class="text-[10px] truncate w-32 font-mono">${f}</span>
+                            <a href="${API}/download/${f}" class="text-emerald-400 font-bold text-xs bg-emerald-500/10 px-4 py-1 rounded-lg">📥 Ouvrir</a>
+                        </div>`).join('');
+                } else { hList.innerHTML = "Aucun historique."; }
+            } catch(e) { hList.innerText = "Erreur historique."; }
+        }
     </script>
 </body>
 </html>
