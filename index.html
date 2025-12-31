@@ -21,7 +21,7 @@
         @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } }
     </style>
 </head>
-<body id="mainBody" class="min-h-screen p-4 pb-12">
+<body id="mainBody" class="min-h-screen p-4 pb-10">
 
     <div class="max-w-xl mx-auto flex justify-between items-center py-6">
         <div>
@@ -32,9 +32,9 @@
     </div>
 
     <div class="max-w-xl mx-auto flex justify-around mb-8 border-b border-slate-800 text-sm font-bold tracking-widest">
-        <button onclick="showTab('excel')" id="t-excel" class="pb-3 tab-active transition-all">EXCEL</button>
-        <button onclick="showTab('scan')" id="t-scan" class="pb-3 text-slate-500 transition-all">SCANNER</button>
-        <button onclick="showTab('hist')" id="t-hist" class="pb-3 text-slate-500 transition-all">DOSSIERS</button>
+        <button onclick="showTab('excel')" id="t-excel" class="pb-3 tab-active">EXCEL</button>
+        <button onclick="showTab('scan')" id="t-scan" class="pb-3 text-slate-500">SCANNER</button>
+        <button onclick="showTab('hist')" id="t-hist" class="pb-3 text-slate-500">DOSSIERS</button>
     </div>
 
     <div class="max-w-xl mx-auto space-y-6">
@@ -58,13 +58,13 @@
         <!-- SCANNER -->
         <div id="s-scan" class="hidden space-y-4 text-center">
             <div class="glass rounded-[2.5rem] p-6">
-                <p class="text-sm text-slate-400 mb-6">Scanner Bionique pour tes yeux 🥥</p>
+                <p class="text-sm text-slate-400 mb-6 font-medium">L'IA déchiffre les documents flous pour tes yeux 🥥</p>
                 <input type="file" id="fScan" class="hidden" accept="image/*" capture="environment">
                 <button onclick="document.getElementById('fScan').click()" class="w-full bg-blue-600 py-5 rounded-2xl font-black text-lg active:scale-95 transition-all">📸 PRENDRE UNE PHOTO</button>
                 <div id="ocrBox" class="hidden mt-6 space-y-4">
-                    <div class="rounded-xl overflow-hidden border border-slate-700"><img id="resImg" class="w-full h-auto cursor-zoom-in" onclick="window.open(this.src)"></div>
-                    <div id="resTxt" class="bg-slate-900/90 p-5 rounded-xl text-left text-lg leading-relaxed border border-emerald-500/30 whitespace-pre-wrap"></div>
-                    <button id="bCopy" class="w-full bg-slate-700 py-3 rounded-xl font-bold active:scale-95">📋 COPIER</button>
+                    <div class="rounded-xl overflow-hidden border border-slate-700 shadow-inner"><img id="resImg" class="w-full h-auto cursor-zoom-in" onclick="window.open(this.src)"></div>
+                    <div id="resTxt" class="bg-slate-900/90 p-5 rounded-xl text-left text-lg leading-relaxed border border-emerald-500/30 whitespace-pre-wrap shadow-2xl"></div>
+                    <button id="bCopy" class="w-full bg-slate-700 py-3 rounded-xl font-bold active:scale-95 transition-all">📋 COPIER</button>
                 </div>
             </div>
         </div>
@@ -81,8 +81,8 @@
     <!-- Loader -->
     <div id="loading" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50 text-center">
         <div>
-            <div class="shimmer w-20 h-20 rounded-full bg-emerald-500/10 mb-6 mx-auto flex items-center justify-center"><span class="text-4xl animate-bounce">🥥</span></div>
-            <p id="lTxt" class="text-emerald-400 font-bold tracking-widest uppercase text-xs">Traitement en cours...</p>
+            <div class="shimmer w-20 h-20 rounded-full bg-emerald-500/10 mb-6 mx-auto flex items-center justify-center"><span class="text-3xl animate-bounce">🥥</span></div>
+            <p id="lTxt" class="text-emerald-400 font-bold uppercase text-xs tracking-widest">L'IA travaille pour toi...</p>
         </div>
     </div>
 
@@ -156,8 +156,10 @@
                     document.getElementById('resImg').src = d.image;
                     document.getElementById('resTxt').innerText = d.text;
                     vib(100);
+                } else {
+                    alert("Erreur: " + d.detail);
                 }
-            } catch(e) { alert("Erreur d'analyse."); }
+            } catch(e) { alert("Erreur de connexion."); }
             document.getElementById('loading').classList.add('hidden');
         };
 
